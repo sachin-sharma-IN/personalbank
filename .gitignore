@@ -1,0 +1,21 @@
+# output files
+**/*.log
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# temp files
+*.swp
+**/.DS_Store
+**/thumbs.db
+**/desktop.ini
+**/.directory
+.idea/
+.history
+
+# generated files
+.deps
