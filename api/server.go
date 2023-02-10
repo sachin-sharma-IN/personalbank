@@ -27,6 +27,13 @@ func NewServer(store *db.Store) *Server {
 	// For now, we don't have middleware so we'll just pass createA/c. This is method of server struct which needs to be implemented.
 	// Reason it is of server struct is bcz it needs access to store obj to create a/c in db.
 	router.POST("/accounts", server.createAccount)
+	// Api to get a specific account by ID.
+	// : before id is the way to tell gin that this is URI param.
+	router.GET("/accounts/:id", server.getAccount)
+	// endpoint to listAccounts. We'll use pagination and get input params
+	// from query params in request body. Since input will come from query params, we'll use
+	// /accounts endpoint
+	router.GET("/accounts", server.listAccount)
 
 	server.router = router
 	return server
