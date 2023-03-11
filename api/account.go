@@ -8,16 +8,16 @@ import (
 	db "github.com/sachin-sharma-IN/personalbank/db/sqlc"
 )
 
-// Creating this struct to store new createA/C req. We'll get below params from
+//	  Creating this struct to store new createA/C req. We'll get below params from
 //
-//		body of HTTP req.
-//	 gin uses go validator package internally. binding:required makes field mandatory in req.
+//		 body of HTTP req.
+//		 gin uses go validator package internally. binding:required makes field mandatory in req.
 type createAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
 	Currency string `json:"currency" binding:"required,oneof=USD EUR"`
 }
 
-// Decclare createA/c func with server pointer receiver and input is ctx of gin.Context type. Why?
+// Declare createA/c func with server pointer receiver and input is ctx of gin.Context type. Why?
 // look at router.post sign. in api/server.go. HandlerFunc is decalred with context input.
 func (server *Server) createAccount(ctx *gin.Context) {
 	var req createAccountRequest
