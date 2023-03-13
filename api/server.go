@@ -4,6 +4,8 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	db "github.com/sachin-sharma-IN/personalbank/db/sqlc"
 )
 
@@ -20,6 +22,11 @@ func NewServer(store db.Store) *Server {
 	server := &Server{store: store}
 	router := gin.Default()
 
+	// binding.Validator.Engine() will return the current validator which gin is using.
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("currency", validCurrency)
+	}
+
 	// handler functions.
 	// we can pass one or multiple handler func. if we pass multiple funcs,
 	// last one should be real handler and all other funcs should be middleware.
@@ -34,6 +41,8 @@ func NewServer(store db.Store) *Server {
 	// from query params in request body. Since input will come from query params, we'll use
 	// /accounts endpoint
 	router.GET("/accounts", server.listAccount)
+
+	router.POST("/transfers", server.createTransfer)
 
 	server.router = router
 	return server

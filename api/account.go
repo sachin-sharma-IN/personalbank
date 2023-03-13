@@ -14,7 +14,7 @@ import (
 //		 gin uses go validator package internally. binding:required makes field mandatory in req.
 type createAccountRequest struct {
 	Owner    string `json:"owner" binding:"required"`
-	Currency string `json:"currency" binding:"required,oneof=USD EUR"`
+	Currency string `json:"currency" binding:"required,currency"`
 }
 
 // Declare createA/c func with server pointer receiver and input is ctx of gin.Context type. Why?

@@ -260,7 +260,7 @@ func TestListAccountAPI(t *testing.T) {
 
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
-				// requireBodyMatchAccount(t, recorder.Body, accounts)
+				requireBodyMatchAccounts(t, recorder.Body, accounts)
 			},
 		},
 	}
@@ -287,7 +287,7 @@ func TestListAccountAPI(t *testing.T) {
 			q.Add("page_id", fmt.Sprint(tc.query.PageID))
 			q.Add("page_size", fmt.Sprint(tc.query.PageSize))
 
-			// must set this, since under the hood c.BindQuery calls
+			// 	must set this, since under the hood c.BindQuery calls
 			// `req.URL.Query()`, which calls `ParseQuery(u.RawQuery)`
 			request.URL.RawQuery = q.Encode()
 
@@ -316,4 +316,15 @@ func requireBodyMatchAccount(t *testing.T, body *bytes.Buffer, account db.Accoun
 	require.NoError(t, err)
 
 	require.Equal(t, gotAccount, account)
+}
+
+func requireBodyMatchAccounts(t *testing.T, body *bytes.Buffer, accounts []db.Account) {
+	data, err := io.ReadAll(body)
+	require.NoError(t, err)
+
+	var gotAccounts []db.Account
+	err = json.Unmarshal(data, &gotAccounts)
+	require.NoError(t, err)
+
+	require.Equal(t, gotAccounts, accounts)
 }
