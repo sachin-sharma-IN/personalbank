@@ -263,6 +263,49 @@ func TestListAccountAPI(t *testing.T) {
 				requireBodyMatchAccounts(t, recorder.Body, accounts)
 			},
 		},
+		{
+			name: "BadRequest",
+			query: QueryParam{
+				PageID:   0,
+				PageSize: n,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				arg := db.ListAccountsParams{
+					Limit:  int32(n),
+					Offset: 0,
+				}
+
+				store.EXPECT().
+					ListAccounts(gomock.Any(), gomock.Eq(arg)).
+					Times(0)
+			},
+
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusBadRequest, recorder.Code)
+			},
+		},
+		{
+			name: "InternalServerError",
+			query: QueryParam{
+				PageID:   1,
+				PageSize: n,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+				arg := db.ListAccountsParams{
+					Limit:  int32(n),
+					Offset: 0,
+				}
+
+				store.EXPECT().
+					ListAccounts(gomock.Any(), gomock.Eq(arg)).
+					Times(1).
+					Return([]db.Account{}, sql.ErrNoRows)
+			},
+
+			checkResponse: func(recorder *httptest.ResponseRecorder) {
+				require.Equal(t, http.StatusInternalServerError, recorder.Code)
+			},
+		},
 	}
 
 	for i := range testCases {
