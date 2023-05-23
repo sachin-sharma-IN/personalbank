@@ -3,6 +3,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -17,25 +18,28 @@ type Server struct {
 	router *gin.Engine
 }
 
-// NewServer creats a new HTTP server and setup routing.
-func NewServer(store db.Store) *Server {
+// NewServer creates a new HTTP server and setup routing.
+func NewServer(store db.Store) (*Server, error) {
 	server := &Server{store: store}
 	router := gin.Default()
 
 	// binding.Validator.Engine() will return the current validator which gin is using.
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterValidation("currency", validCurrency)
+		err := v.RegisterValidation("currency", validCurrency)
+		if err != nil {
+			return nil, fmt.Errorf("RegisterValidation failed with %v", err)
+		}
 	}
 
 	// handler functions.
 	// we can pass one or multiple handler func. if we pass multiple funcs,
 	// last one should be real handler and all other funcs should be middleware.
 
-	// For now, we don't have middleware so we'll just pass createA/c. This is method of server struct which needs to be implemented.
+	// For now, we don't have middleware, so we'll just pass createA/c. This is method of server struct which needs to be implemented.
 	// Reason it is of server struct is bcz it needs access to store obj to create a/c in db.
 	router.POST("/accounts", server.createAccount)
 	// Api to get a specific account by ID.
-	// : before id is the way to tell gin that this is URI param.
+	// colon aka : before id is the way to tell gin that this is URI param.
 	router.GET("/accounts/:id", server.getAccount)
 	// endpoint to listAccounts. We'll use pagination and get input params
 	// from query params in request body. Since input will come from query params, we'll use
@@ -43,9 +47,10 @@ func NewServer(store db.Store) *Server {
 	router.GET("/accounts", server.listAccount)
 
 	router.POST("/transfers", server.createTransfer)
+	router.POST("/users", server.createUser)
 
 	server.router = router
-	return server
+	return server, nil
 }
 
 // Start runs the HTTP server on a specific address.
